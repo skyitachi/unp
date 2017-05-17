@@ -25,24 +25,21 @@ void str_cli_select(FILE *fp, int sockfd) {
     fd_set rset;
 
     FD_ZERO(&rset);
-    FD_SET(fpd, &rset);
     FD_SET(sockfd, &rset);
+    FD_SET(fpd, &rset);
 
     for(;;) {
         Select(maxfd, &rset, NULL, NULL, NULL);
-        if (FD_ISSET(sockfd, &rset) != 0) {
-//            printf("\nsocket read already\n");
+        if (FD_ISSET(sockfd, &rset)) {
             if (Readline(sockfd, recvline, MAXLINE) == 0) {
                 err_quit("str_cli: server terminated prematurely");
             }
             Fputs(recvline, stdout);
         }
 
-        if (FD_ISSET(fpd, &rset) != 0 ) {
-//            printf("\nfp read already\n");
+        if (FD_ISSET(fpd, &rset)) {
             if (Fgets(sendline, MAXLINE, fp) == NULL) // read eof
                 return;
-//            printf("\nenter EOF then the content is: %s\n", sendline);
             Writen(sockfd, sendline, strlen(sendline));
         }
     }
@@ -67,7 +64,7 @@ void str_cli_select_2(FILE *fp, int sockfd) {
         }
         FD_SET(sockfd, &rset);
         Select(maxfd, &rset, NULL, NULL, NULL);
-        if (FD_ISSET(sockfd, &rset) != 0) {
+        if (FD_ISSET(sockfd, &rset)) {
             printf("sockfd is ready\n");
             if ((n = Read(sockfd, recvline, MAXLINE)) == 0) { // eof
                 if (eof == 1) {
@@ -79,7 +76,7 @@ void str_cli_select_2(FILE *fp, int sockfd) {
 //            Fputs(recvline, stdout);
         }
 
-        if (FD_ISSET(fpd, &rset) != 0 ) {
+        if (FD_ISSET(fpd, &rset)) {
             printf("\nfp read already\n");
             if ((n = Read(fpd, sendline, MAXLINE)) == 0) { // read stdin eof
                 printf("in the eof\n");
