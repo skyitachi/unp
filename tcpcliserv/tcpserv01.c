@@ -1,7 +1,7 @@
 //
 // Created by skyitachi on 2017/5/3.
 //
-
+// TODO should deal with SIGCHLD and SIGPIPE
 #include <unp/unp.h>
 
 void str_echo(int sockfd) {

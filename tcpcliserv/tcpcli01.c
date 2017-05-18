@@ -9,6 +9,9 @@ void str_cli(FILE *fp, int sockfd) {
 
     while(Fgets(sendline, MAXLINE, fp) != NULL) {
         Writen(sockfd, sendline, strlen(sendline));
+        sleep(1);
+        Writen(sockfd, sendline + 1, strlen(sendline) - 1); // demonstrate SIGPIPE
+
         if (Readline(sockfd, recvline, MAXLINE) == 0) { // wait for newline
             err_quit("str_cli: server terminated prematurely");
         }
@@ -103,9 +106,9 @@ int main(int argc, char **argv) {
     Inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
 
     Connect(sockfd, (SA *)&servaddr, sizeof(servaddr));
-//    str_cli(stdin, sockfd);
+    str_cli(stdin, sockfd);
 //    str_cli_select(stdin, sockfd);
-    str_cli_select_2(stdin, sockfd);
+//    str_cli_select_2(stdin, sockfd);
     exit(0);
 }
 
