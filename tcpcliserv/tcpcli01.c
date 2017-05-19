@@ -4,6 +4,15 @@
 
 #include <unp/unp.h>
 
+struct args {
+    long arg1;
+    long arg2;
+};
+
+struct result {
+    long sum;
+};
+
 void str_cli(FILE *fp, int sockfd) {
     char sendline[MAXLINE], recvline[MAXLINE];
 
@@ -95,6 +104,28 @@ void str_cli_select_2(FILE *fp, int sockfd) {
     }
 }
 
+void str_cli_sum(FILE *fp, int sockfd) {
+    char sendline[MAXLINE];
+    struct args args;
+    struct result result;
+
+    while(Fgets(sendline, MAXLINE, fp) != NULL) {
+        if (sscanf(sendline, "%ld%ld", &args.arg1, &args.arg1) != 2) {
+            printf("invaild input\n");
+            continue;
+        }
+        Writen(sockfd, &args, sizeof(args));
+        sleep(1);
+        Writen(sockfd, sendline + 1, strlen(sendline) - 1); // demonstrate SIGPIPE
+
+        if (Readline(sockfd, &result, sizeof(result)) == 0) { // wait for newline
+            err_quit("str_cli: server terminated prematurely");
+        }
+        printf("%ld\n", result.sum);
+    }
+
+}
+
 int main(int argc, char **argv) {
     int sockfd;
     struct sockaddr_in servaddr;
@@ -106,9 +137,10 @@ int main(int argc, char **argv) {
     Inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
 
     Connect(sockfd, (SA *)&servaddr, sizeof(servaddr));
-    str_cli(stdin, sockfd);
+//    str_cli(stdin, sockfd);
 //    str_cli_select(stdin, sockfd);
 //    str_cli_select_2(stdin, sockfd);
+    str_cli_sum(stdin, sockfd);
     exit(0);
 }
 

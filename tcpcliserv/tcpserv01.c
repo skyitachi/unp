@@ -20,6 +20,25 @@ again:
     }
 }
 
+// read two numbers and write sum to the socket
+void str_echo2(int sockfd) {
+    long arg1, arg2;
+    ssize_t  n;
+    char line[MAXLINE];
+    for(;;) {
+        if ((n = Readline(sockfd, line, MAXLINE)) == 0) {
+            return;
+        }
+        if (sscanf(line, "%ld%ld", &arg1, &arg2) == 2) {
+            snprintf(line, sizeof(line), "%ld\n", arg1 + arg2);
+        } else {
+            snprintf(line, sizeof(line), "input error\n");
+        }
+        n = strlen(line);
+        Writen(sockfd, line, n);
+    }
+}
+
 int main(int argc, char **argv) {
     int listenfd, connfd;
     pid_t childpid;
@@ -27,6 +46,8 @@ int main(int argc, char **argv) {
     struct sockaddr_in childaddr, servaddr;
 
     listenfd = Socket(AF_INET, SOCK_STREAM, 0);
+    int optval = 1;
+    setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(SERV_PORT/* 9877 */);
@@ -40,7 +61,8 @@ int main(int argc, char **argv) {
         connfd = Accept(listenfd, (SA *)&childaddr, &childlen);
         if ((childpid = Fork()) == 0) {
             Close(listenfd); // should close
-            str_echo(connfd);
+            str_echo2(connfd);
+//            str_echo(connfd);
 //            printf("leave the child\n");
             Close(connfd);
             exit(0); // auto close connfd
