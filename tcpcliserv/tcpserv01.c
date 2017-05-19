@@ -5,11 +5,11 @@
 #include <unp/unp.h>
 
 struct args {
-    long arg1;
-    long arg2;
+    int arg1;
+    int arg2;
 };
 struct result {
-    long sum;
+    int sum;
 };
 void str_echo(int sockfd) {
     ssize_t n;
@@ -37,6 +37,7 @@ void str_echo2(int sockfd) {
         if ((n = Readn(sockfd, &args, sizeof(args))) == 0) {
             return;
         }
+        printf("arg1 is :%d arg2 is: %d\n", args.arg1, args.arg2);
         result.sum = args.arg1 + args.arg2;
         Writen(sockfd, &result, sizeof(result));
     }
