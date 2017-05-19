@@ -110,15 +110,13 @@ void str_cli_sum(FILE *fp, int sockfd) {
     struct result result;
 
     while(Fgets(sendline, MAXLINE, fp) != NULL) {
-        if (sscanf(sendline, "%ld%ld", &args.arg1, &args.arg1) != 2) {
+        if (sscanf(sendline, "%ld%ld", &args.arg1, &args.arg2) != 2) {
             printf("invaild input\n");
             continue;
         }
         Writen(sockfd, &args, sizeof(args));
-        sleep(1);
-        Writen(sockfd, sendline + 1, strlen(sendline) - 1); // demonstrate SIGPIPE
 
-        if (Readline(sockfd, &result, sizeof(result)) == 0) { // wait for newline
+        if (Readn(sockfd, &result, sizeof(result)) == 0) {
             err_quit("str_cli: server terminated prematurely");
         }
         printf("%ld\n", result.sum);

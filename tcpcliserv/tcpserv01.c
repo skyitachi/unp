@@ -4,6 +4,13 @@
 // TODO should deal with SIGCHLD and SIGPIPE
 #include <unp/unp.h>
 
+struct args {
+    long arg1;
+    long arg2;
+};
+struct result {
+    long sum;
+};
 void str_echo(int sockfd) {
     ssize_t n;
     char buf[MAXLINE];
@@ -22,20 +29,16 @@ again:
 
 // read two numbers and write sum to the socket
 void str_echo2(int sockfd) {
-    long arg1, arg2;
     ssize_t  n;
     char line[MAXLINE];
+    struct args args;
+    struct result result;
     for(;;) {
-        if ((n = Readline(sockfd, line, MAXLINE)) == 0) {
+        if ((n = Readn(sockfd, &args, sizeof(args))) == 0) {
             return;
         }
-        if (sscanf(line, "%ld%ld", &arg1, &arg2) == 2) {
-            snprintf(line, sizeof(line), "%ld\n", arg1 + arg2);
-        } else {
-            snprintf(line, sizeof(line), "input error\n");
-        }
-        n = strlen(line);
-        Writen(sockfd, line, n);
+        result.sum = args.arg1 + args.arg2;
+        Writen(sockfd, &result, sizeof(result));
     }
 }
 
