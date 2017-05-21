@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.5)
 project(epoll)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -lunp")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
 
 file(GLOB SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.c)
 
