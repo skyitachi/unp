@@ -65,9 +65,8 @@ int main(int argc, char **argv) {
         connfd = Accept(listenfd, (SA *)&childaddr, &childlen);
         if ((childpid = Fork()) == 0) {
             Close(listenfd); // should close
-            str_echo2(connfd);
-//            str_echo(connfd);
-//            printf("leave the child\n");
+//            str_echo2(connfd);
+            str_echo(connfd);
             Close(connfd);
             exit(0); // auto close connfd
         }
