@@ -42,7 +42,8 @@ void add_fd_to_epoll(int efd, int fd, int ev_type, int nonblock) {
 
 int main(int argc, char **argv) {
     int listenfd, connfd, epollfd;
-    ssize_t n;
+    ssize_t n, nread;
+    char buf[4096];
     struct sockaddr_in servaddr;
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
@@ -72,9 +73,28 @@ int main(int argc, char **argv) {
             printf("epoll_wait error\n");
             exit(1);
         } else {
+            printf("%d fd has events\n", n);
             for(int i = 0; i < n; i++) {
                 if (epoll_events[i].data.fd == listenfd) { // new connection comes
                     printf("new connection comes\n");
+                    struct sockaddr_in cliaddr;
+                    socklen_t socklen;
+                    connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &socklen);
+                    printf("accept connection successful\n");
+                    add_fd_to_epoll(epollfd, connfd, EPOLLET, 1/* non block*/);
+                } else if(epoll_events[i].events & EPOLLIN) {
+                    connfd = epoll_events[i].data.fd;
+                    // edge trigger should read all data in one loop
+                    for(;;) {
+                        // block io
+                        nread = recv(connfd, buf, 4096, 0);
+                        if (nread == 0) {
+                            printf("client close the connection\n");
+                            break;
+                        } else if (nread == -1) {
+                            // TODO: in which situation will cause this case
+                        }
+                    }
                 }
             }
         }
